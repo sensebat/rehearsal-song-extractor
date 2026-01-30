@@ -1,4 +1,4 @@
-# Split Rehearsal Audio
+# Rehearsal Song Extractor
 
 Extract individual songs from choir rehearsal recordings using AI-powered audio classification.
 
@@ -20,10 +20,10 @@ Extract individual songs from choir rehearsal recordings using AI-powered audio 
 
 ```bash
 # Basic usage
-uv run python extract_songs_ai.py ~/path/to/rehearsal.mov
+uv run python rse.py ~/path/to/rehearsal.mov
 
 # With options
-uv run python extract_songs_ai.py recording.mov \
+uv run python rse.py recording.mov \
     --output-dir songs/ \
     --min-gap 8 \
     --min-duration 30

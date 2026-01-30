@@ -1,5 +1,5 @@
 [project]
-name = "split-rehearsal-audio"
+name = "rehearsal-song-extractor"
 version = "0.1.0"
 description = "Extract individual songs from choir rehearsal recordings"
 requires-python = ">=3.10,<3.11"

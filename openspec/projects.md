@@ -27,12 +27,12 @@
 ## Project Structure
 
 ```
-split-rehearsal-audio/
+rehearsal-song-extractor/
 ├── pyproject.toml          # Project config and dependencies
 ├── .python-version         # Python version pin (3.10)
 ├── .gitignore
 ├── README.md
-├── extract_songs_ai.py     # AI-powered song extraction
+├── rse.py                  # AI-powered song extraction
 ├── openspec/
 │   └── projects.md         # This file
 ├── temp/                   # Intermediate files (gitignored)
