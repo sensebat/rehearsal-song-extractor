@@ -108,9 +108,14 @@ def detect_music_segments(
     # Normalize each feature to 0-1 range
     for i in range(features_array.shape[1]):
         col = features_array[:, i]
-        min_val, max_val = col.min(), col.max()
+        min_val, max_val = np.nanmin(col), np.nanmax(col)
         if max_val > min_val:
             features_array[:, i] = (col - min_val) / (max_val - min_val)
+        else:
+            features_array[:, i] = 0.0
+
+    # Replace any NaN/inf values with 0
+    features_array = np.nan_to_num(features_array, nan=0.0, posinf=0.0, neginf=0.0)
 
     # Score each frame for "musicness"
     # High score = likely music
