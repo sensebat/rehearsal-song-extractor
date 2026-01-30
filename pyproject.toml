@@ -6,7 +6,9 @@ requires-python = ">=3.10,<3.11"
 dependencies = [
     "accelerate>=1.12.0",
     "librosa>=0.11.0",
+    "mutagen>=1.47.0",
     "pyannote.audio",
+    "pyyaml>=6.0",
     "torch",
     "torchaudio",
     "transformers>=5.0.0",

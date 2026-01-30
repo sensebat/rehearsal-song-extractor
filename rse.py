@@ -37,6 +37,9 @@ class TeeLogger:
     def close(self) -> None:
         self.log_file.close()
 
+    def isatty(self) -> bool:
+        return self.stdout.isatty()
+
 import librosa
 import numpy as np
 import soundfile as sf
@@ -591,6 +594,26 @@ def format_time(seconds: float) -> str:
     return f"{minutes:02d}:{secs:02d}"
 
 
+def generate_yaml_template(output_dir: Path, song_count: int, label: str | None = None) -> Path:
+    """Generate a YAML metadata template for tagging songs."""
+    from datetime import datetime
+
+    yaml_path = output_dir / "songs.yaml"
+
+    # Build YAML content
+    lines = [
+        f'artist: ""',
+        f'album: "{label or ""}"',
+        f'year: {datetime.now().year}',
+        'tracks:',
+    ]
+    for i in range(1, song_count + 1):
+        lines.append(f'  - "Song {i:02d}"')
+
+    yaml_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return yaml_path
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="AI-powered song extraction from choir rehearsals"
@@ -715,6 +738,11 @@ def main():
 
     # Step 6: Export using high-quality audio
     export_songs(temp_audio_hq, final_songs, label=args.label)
+
+    # Step 7: Generate YAML template for tagging
+    yaml_path = generate_yaml_template(output_dir, len(final_songs), label=args.label)
+    print(f"\nYAML template created: {yaml_path}")
+    print("Edit this file with song titles, then run: rst.py", yaml_path)
 
     print(f"\nDone! Songs saved to {output_dir}/")
     print(f"Log saved to {log_path}")
