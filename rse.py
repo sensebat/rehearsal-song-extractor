@@ -17,6 +17,26 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+
+class TeeLogger:
+    """Write to both stdout and a log file simultaneously."""
+
+    def __init__(self, log_path: Path):
+        self.log_file = open(log_path, "w", encoding="utf-8")
+        self.stdout = sys.stdout
+
+    def write(self, message: str) -> int:
+        self.stdout.write(message)
+        self.log_file.write(message)
+        return len(message)
+
+    def flush(self) -> None:
+        self.stdout.flush()
+        self.log_file.flush()
+
+    def close(self) -> None:
+        self.log_file.close()
+
 import librosa
 import numpy as np
 import soundfile as sf
@@ -629,6 +649,18 @@ def main():
         print(f"Error: Input file not found: {args.input}", file=sys.stderr)
         sys.exit(1)
 
+    # Determine output directory and set up logging
+    if args.label:
+        output_dir = Path(args.label)
+        log_path = output_dir / f"{args.label}.log"
+    else:
+        output_dir = Path("songs")
+        log_path = output_dir / "extraction.log"
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    logger = TeeLogger(log_path)
+    sys.stdout = logger
+
     # Create temp directory
     args.temp_dir.mkdir(parents=True, exist_ok=True)
     temp_audio = args.temp_dir / "extracted_audio_16k.wav"
@@ -684,8 +716,12 @@ def main():
     # Step 6: Export using high-quality audio
     export_songs(temp_audio_hq, final_songs, label=args.label)
 
-    output_dir = args.label if args.label else "songs"
     print(f"\nDone! Songs saved to {output_dir}/")
+    print(f"Log saved to {log_path}")
+
+    # Close logger
+    logger.close()
+    sys.stdout = logger.stdout
 
 
 if __name__ == "__main__":
