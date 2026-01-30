@@ -32,8 +32,7 @@ split-rehearsal-audio/
 ├── .python-version         # Python version pin (3.10)
 ├── .gitignore
 ├── README.md
-├── extract_songs_ai.py     # AI-powered extraction (recommended)
-├── extract_songs.py        # Heuristic-based extraction (fast)
+├── extract_songs_ai.py     # AI-powered song extraction
 ├── openspec/
 │   └── projects.md         # This file
 ├── temp/                   # Intermediate files (gitignored)
@@ -67,21 +66,3 @@ uv add torch torchaudio transformers accelerate librosa pyannote.audio
 # Install ffmpeg (macOS)
 brew install ffmpeg
 ```
-
-## Scripts
-
-### extract_songs_ai.py (Primary)
-
-AI-powered song extraction using MIT Audio Spectrogram Transformer.
-
-- More accurate music/speech classification
-- Leverages silence gaps for precise cut points
-- Slower but robust
-
-### extract_songs.py (Alternative)
-
-Heuristic-based extraction using spectral features.
-
-- Faster processing
-- May confuse speech with music in some cases
-- Good for quick previews

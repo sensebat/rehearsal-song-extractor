@@ -40,21 +40,11 @@ uv run python extract_songs_ai.py recording.mov \
 | `--min-music-duration` | `15.0` | Minimum music segment to consider (filters blips) |
 | `--silence-threshold` | `-40.0` | Silence detection threshold in dB |
 
-## Alternative: Heuristic Approach
-
-A faster but less accurate heuristic script is also included:
-
-```bash
-uv run python extract_songs.py ~/path/to/rehearsal.mov
-```
-
-This uses spectral features (RMS energy, harmonic ratio, spectral centroid) instead of AI classification. It's much faster but may confuse speech with music if they have similar acoustic profiles.
-
 ## Output
 
 Songs are exported as `Song_01.wav`, `Song_02.wav`, etc. in the output directory.
 
-The script also prints a timeline showing detected music vs. speech regions:
+The script prints a timeline showing detected music vs. speech regions:
 
 ```
 Detected regions:
