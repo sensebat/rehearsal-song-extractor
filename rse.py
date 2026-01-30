@@ -495,14 +495,37 @@ def merge_nearby_songs(
     return filtered
 
 
+def encode_mp3(wav_path: Path, mp3_path: Path, bitrate: str = "320k") -> bool:
+    """Encode WAV to MP3 using ffmpeg."""
+    cmd = [
+        "ffmpeg", "-y",
+        "-i", str(wav_path),
+        "-codec:a", "libmp3lame",
+        "-b:a", bitrate,
+        str(mp3_path),
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    return result.returncode == 0
+
+
 def export_songs(
     audio_path: Path,
     songs: list[tuple[float, float]],
-    output_dir: Path,
+    label: str | None = None,
     original_audio_path: Path | None = None,
 ) -> None:
-    """Export songs as WAV files."""
+    """Export songs as WAV and MP3 files with optional label prefix."""
+    # Determine output directory and file prefix
+    if label:
+        output_dir = Path(label)
+        file_prefix = f"{label} "
+    else:
+        output_dir = Path("songs")
+        file_prefix = ""
+
+    lossless_dir = output_dir / "Lossless"
     output_dir.mkdir(parents=True, exist_ok=True)
+    lossless_dir.mkdir(parents=True, exist_ok=True)
 
     # Use original high-quality audio if available
     source_path = original_audio_path or audio_path
@@ -526,10 +549,19 @@ def export_songs(
 
         segment = y[:, start_sample:end_sample]
 
-        output_path = output_dir / f"Song_{i:02d}.wav"
-        sf.write(output_path, segment.T, sr)
+        # File names
+        base_name = f"{file_prefix}Song {i:02d}"
+        wav_path = lossless_dir / f"{base_name}.wav"
+        mp3_path = output_dir / f"{base_name}.mp3"
 
-        print(f"  {output_path.name}: {format_time(start)} - {format_time(end)} ({end - start:.0f}s)")
+        # Write WAV to Lossless/
+        sf.write(wav_path, segment.T, sr)
+
+        # Encode MP3 to root
+        if encode_mp3(wav_path, mp3_path):
+            print(f"  {base_name}: {format_time(start)} - {format_time(end)} ({end - start:.0f}s)")
+        else:
+            print(f"  {base_name}: WAV saved, MP3 encoding failed")
 
 
 def format_time(seconds: float) -> str:
@@ -547,12 +579,6 @@ def main():
         "input",
         type=Path,
         help="Input video/audio file",
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=Path("songs"),
-        help="Output directory (default: songs/)",
     )
     parser.add_argument(
         "--temp-dir",
@@ -589,6 +615,12 @@ def main():
         type=float,
         default=6.0,
         help="Loudness dip threshold in dB for count-off detection (default: 6)",
+    )
+    parser.add_argument(
+        "--label",
+        type=str,
+        default=None,
+        help="Label for output files and directory (e.g., '2016-01-29 Generalprobe')",
     )
 
     args = parser.parse_args()
@@ -650,9 +682,10 @@ def main():
         sys.exit(0)
 
     # Step 6: Export using high-quality audio
-    export_songs(temp_audio_hq, final_songs, args.output_dir)
+    export_songs(temp_audio_hq, final_songs, label=args.label)
 
-    print(f"\nDone! Songs saved to {args.output_dir}/")
+    output_dir = args.label if args.label else "songs"
+    print(f"\nDone! Songs saved to {output_dir}/")
 
 
 if __name__ == "__main__":
